@@ -1,0 +1,812 @@
+{
+  "assessment": {
+    "code": "KABC",
+    "version": "prototype-1.0",
+    "name": "K-ABC - Banco de actividades",
+    "language": "es-PE",
+    "scoring": {
+      "unit": "ITEM",
+      "itemScoreMin": 0,
+      "itemScoreMax": 1,
+      "partialScore": false,
+      "seriesAreIndependentlyScored": false
+    },
+    "items": [
+      {
+        "id": 1,
+        "code": "MM_01",
+        "subtest": "Movimientos de manos",
+        "type": "SEQUENCE",
+        "instruction": "Observa la secuencia y realiza los movimientos en el mismo orden.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": "assets/kabc/movimientos-manos/serie_01.png",
+            "expectedAnswer": [
+              "movimiento_1",
+              "movimiento_2",
+              "movimiento_3"
+            ]
+          },
+          {
+            "id": 2,
+            "stimulus": "assets/kabc/movimientos-manos/serie_02.png",
+            "expectedAnswer": [
+              "movimiento_2",
+              "movimiento_1",
+              "movimiento_3"
+            ]
+          },
+          {
+            "id": 3,
+            "stimulus": "assets/kabc/movimientos-manos/serie_03.png",
+            "expectedAnswer": [
+              "movimiento_3",
+              "movimiento_1",
+              "movimiento_2"
+            ]
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 2,
+        "code": "RN_01",
+        "subtest": "Recuerdo de números",
+        "type": "AUDIO_SEQUENCE",
+        "instruction": "Escucha la secuencia de números y repítela en el mismo orden.",
+        "input": {
+          "type": "NUMERIC_KEYPAD"
+        },
+        "series": [
+          {
+            "id": 1,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/recuerdo-numeros/serie_01.mp3"
+            },
+            "expectedAnswer": [
+              3,
+              7,
+              2
+            ]
+          },
+          {
+            "id": 2,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/recuerdo-numeros/serie_02.mp3"
+            },
+            "expectedAnswer": [
+              5,
+              1,
+              8,
+              4
+            ]
+          },
+          {
+            "id": 3,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/recuerdo-numeros/serie_03.mp3"
+            },
+            "expectedAnswer": [
+              6,
+              2,
+              9,
+              3,
+              7
+            ]
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 3,
+        "code": "OP_01",
+        "subtest": "Orden de palabras",
+        "type": "SEQUENCE_SELECTION",
+        "instruction": "Escucha las palabras y selecciona las imágenes en el mismo orden.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/orden-palabras/serie_01.mp3"
+            },
+            "options": [
+              "imagen_1",
+              "imagen_2",
+              "imagen_3"
+            ],
+            "expectedAnswer": [
+              "imagen_2",
+              "imagen_1",
+              "imagen_3"
+            ]
+          },
+          {
+            "id": 2,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/orden-palabras/serie_02.mp3"
+            },
+            "options": [
+              "imagen_1",
+              "imagen_2",
+              "imagen_3",
+              "imagen_4"
+            ],
+            "expectedAnswer": [
+              "imagen_3",
+              "imagen_1",
+              "imagen_4",
+              "imagen_2"
+            ]
+          },
+          {
+            "id": 3,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/orden-palabras/serie_03.mp3"
+            },
+            "options": [
+              "imagen_1",
+              "imagen_2",
+              "imagen_3"
+            ],
+            "expectedAnswer": [
+              "imagen_1",
+              "imagen_3",
+              "imagen_2"
+            ]
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 4,
+        "code": "VM_01",
+        "subtest": "Ventana mágica",
+        "type": "PROGRESSIVE_REVEAL",
+        "instruction": "Observa la imagen a medida que aparece y selecciona la respuesta correcta.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": "assets/kabc/ventana-magica/serie_01.png",
+            "options": [
+              "opcion_a",
+              "opcion_b",
+              "opcion_c",
+              "opcion_d"
+            ],
+            "expectedAnswer": "opcion_b"
+          },
+          {
+            "id": 2,
+            "stimulus": "assets/kabc/ventana-magica/serie_02.png",
+            "options": [
+              "opcion_a",
+              "opcion_b",
+              "opcion_c",
+              "opcion_d"
+            ],
+            "expectedAnswer": "opcion_c"
+          },
+          {
+            "id": 3,
+            "stimulus": "assets/kabc/ventana-magica/serie_03.png",
+            "options": [
+              "opcion_a",
+              "opcion_b",
+              "opcion_c",
+              "opcion_d"
+            ],
+            "expectedAnswer": "opcion_a"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 5,
+        "code": "RC_01",
+        "subtest": "Reconocimiento de caras",
+        "type": "FACE_RECOGNITION",
+        "instruction": "Observa y recuerda las caras. Después selecciona la cara que viste.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": {
+              "type": "memoryFaces",
+              "files": [
+                "assets/kabc/reconocimiento-caras/cara_01.png",
+                "assets/kabc/reconocimiento-caras/cara_02.png",
+                "assets/kabc/reconocimiento-caras/cara_03.png"
+              ]
+            },
+            "responseGrid": [
+              "cara_01",
+              "cara_02",
+              "cara_03",
+              "cara_04"
+            ],
+            "expectedAnswer": "cara_02"
+          },
+          {
+            "id": 2,
+            "stimulus": {
+              "type": "memoryFaces",
+              "files": [
+                "assets/kabc/reconocimiento-caras/cara_04.png",
+                "assets/kabc/reconocimiento-caras/cara_05.png",
+                "assets/kabc/reconocimiento-caras/cara_06.png"
+              ]
+            },
+            "responseGrid": [
+              "cara_04",
+              "cara_05",
+              "cara_06",
+              "cara_07"
+            ],
+            "expectedAnswer": "cara_05"
+          },
+          {
+            "id": 3,
+            "stimulus": {
+              "type": "memoryFaces",
+              "files": [
+                "assets/kabc/reconocimiento-caras/cara_08.png",
+                "assets/kabc/reconocimiento-caras/cara_09.png",
+                "assets/kabc/reconocimiento-caras/cara_10.png"
+              ]
+            },
+            "responseGrid": [
+              "cara_08",
+              "cara_09",
+              "cara_10",
+              "cara_11"
+            ],
+            "expectedAnswer": "cara_10"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 6,
+        "code": "CG_01",
+        "subtest": "Cierre gestáltico",
+        "type": "IMAGE_SELECTION",
+        "instruction": "Observa la imagen incompleta y selecciona qué objeto representa.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": "assets/kabc/cierre-gestaltico/serie_01.png",
+            "options": [
+              "perro",
+              "casa",
+              "flor",
+              "auto"
+            ],
+            "expectedAnswer": "perro"
+          },
+          {
+            "id": 2,
+            "stimulus": "assets/kabc/cierre-gestaltico/serie_02.png",
+            "options": [
+              "gato",
+              "bicicleta",
+              "arbol",
+              "pez"
+            ],
+            "expectedAnswer": "bicicleta"
+          },
+          {
+            "id": 3,
+            "stimulus": "assets/kabc/cierre-gestaltico/serie_03.png",
+            "options": [
+              "manzana",
+              "pelota",
+              "sol",
+              "cuchara"
+            ],
+            "expectedAnswer": "pelota"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 7,
+        "code": "TR_01",
+        "subtest": "Triángulos",
+        "type": "CONSTRUCTION",
+        "instruction": "Construye la figura usando las piezas para que coincida con el modelo.",
+        "interactions": [
+          "DRAG_DROP",
+          "ROTATE",
+          "PLACE",
+          "REMOVE",
+          "RESET"
+        ],
+        "series": [
+          {
+            "id": 1,
+            "model": "assets/kabc/triangulos/modelo_01.png",
+            "pieces": [
+              "assets/kabc/triangulos/pieza_01.png",
+              "assets/kabc/triangulos/pieza_02.png",
+              "assets/kabc/triangulos/pieza_03.png"
+            ],
+            "expectedAnswer": "construccion_coincide_modelo_01"
+          },
+          {
+            "id": 2,
+            "model": "assets/kabc/triangulos/modelo_02.png",
+            "pieces": [
+              "assets/kabc/triangulos/pieza_04.png",
+              "assets/kabc/triangulos/pieza_05.png",
+              "assets/kabc/triangulos/pieza_06.png"
+            ],
+            "expectedAnswer": "construccion_coincide_modelo_02"
+          },
+          {
+            "id": 3,
+            "model": "assets/kabc/triangulos/modelo_03.png",
+            "pieces": [
+              "assets/kabc/triangulos/pieza_07.png",
+              "assets/kabc/triangulos/pieza_08.png",
+              "assets/kabc/triangulos/pieza_09.png"
+            ],
+            "expectedAnswer": "construccion_coincide_modelo_03"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 8,
+        "code": "MA_01",
+        "subtest": "Matrices análogas",
+        "type": "MATRIX",
+        "instruction": "Observa la matriz y selecciona la opción que completa correctamente el patrón.",
+        "series": [
+          {
+            "id": 1,
+            "matrixFile": "assets/kabc/matrices/serie_01.png",
+            "options": [
+              "dos_circulos",
+              "dos_triangulos",
+              "tres_cuadrados",
+              "un_circulo"
+            ],
+            "expectedAnswer": "dos_triangulos"
+          },
+          {
+            "id": 2,
+            "matrixFile": "assets/kabc/matrices/serie_02.png",
+            "options": [
+              "transformacion_vacio_relleno",
+              "transformacion_relleno_vacio",
+              "rotacion",
+              "sin_cambio"
+            ],
+            "expectedAnswer": "transformacion_vacio_relleno"
+          },
+          {
+            "id": 3,
+            "matrixFile": "assets/kabc/matrices/serie_03.png",
+            "options": [
+              "dos_circulos",
+              "tres_circulos",
+              "cuatro_cuadrados",
+              "un_triangulo"
+            ],
+            "expectedAnswer": "tres_circulos"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 9,
+        "code": "ME_01",
+        "subtest": "Memoria espacial",
+        "type": "SPATIAL_MEMORY",
+        "instruction": "Observa la posición de los objetos. Después de ocultarlos, colócalos en sus posiciones originales.",
+        "afterHide": true,
+        "series": [
+          {
+            "id": 1,
+            "grid": "assets/kabc/memoria-espacial/serie_01_grid.png",
+            "objects": [
+              "objeto_01",
+              "objeto_02",
+              "objeto_03"
+            ],
+            "responseGrid": "assets/kabc/memoria-espacial/serie_01_response.png",
+            "expectedAnswer": "posiciones_originales"
+          },
+          {
+            "id": 2,
+            "grid": "assets/kabc/memoria-espacial/serie_02_grid.png",
+            "objects": [
+              "objeto_04",
+              "objeto_05",
+              "objeto_06",
+              "objeto_07"
+            ],
+            "responseGrid": "assets/kabc/memoria-espacial/serie_02_response.png",
+            "expectedAnswer": "posiciones_originales"
+          },
+          {
+            "id": 3,
+            "grid": "assets/kabc/memoria-espacial/serie_03_grid.png",
+            "objects": [
+              "objeto_08",
+              "objeto_09",
+              "objeto_10",
+              "objeto_11",
+              "objeto_12"
+            ],
+            "responseGrid": "assets/kabc/memoria-espacial/serie_03_response.png",
+            "expectedAnswer": "posiciones_originales"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 10,
+        "code": "SF_01",
+        "subtest": "Series de fotografías",
+        "type": "IMAGE_ORDERING",
+        "instruction": "Ordena las imágenes siguiendo la secuencia correcta.",
+        "series": [
+          {
+            "id": 1,
+            "images": [
+              "foto_01",
+              "foto_02",
+              "foto_03",
+              "foto_04"
+            ],
+            "expectedAnswer": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "id": 2,
+            "images": [
+              "foto_05",
+              "foto_06",
+              "foto_07",
+              "foto_08"
+            ],
+            "expectedAnswer": [
+              2,
+              4,
+              1,
+              3
+            ]
+          },
+          {
+            "id": 3,
+            "images": [
+              "foto_09",
+              "foto_10",
+              "foto_11",
+              "foto_12"
+            ],
+            "expectedAnswer": [
+              3,
+              1,
+              4,
+              2
+            ]
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 11,
+        "code": "VE_01",
+        "subtest": "Vocabulario expresivo",
+        "type": "VOCABULARY",
+        "instruction": "Observa la imagen y responde oralmente.",
+        "responseType": "AUDIO_RECORDING",
+        "evaluation": {
+          "method": "EVALUATOR_OR_DEFINED_SYSTEM_RULES",
+          "automaticTextMatchingOnly": false
+        },
+        "series": [
+          {
+            "id": 1,
+            "stimulus": "assets/kabc/vocabulario/imagen_01.png",
+            "question": "¿Qué es?",
+            "expectedAnswer": "manzana"
+          },
+          {
+            "id": 2,
+            "stimulus": "assets/kabc/vocabulario/imagen_02.png",
+            "question": "¿Qué es?",
+            "expectedAnswer": "perro"
+          },
+          {
+            "id": 3,
+            "stimulus": "assets/kabc/vocabulario/imagen_03.png",
+            "question": "¿Qué es?",
+            "expectedAnswer": "cuchara"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 12,
+        "code": "CL_01",
+        "subtest": "Caras y lugares",
+        "type": "RECOGNITION",
+        "instruction": "Observa la imagen y selecciona la respuesta correcta.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": "assets/kabc/caras-lugares/lugar_01.png",
+            "question": "¿Qué lugar es?",
+            "options": [
+              "escuela",
+              "parque",
+              "hospital",
+              "biblioteca"
+            ],
+            "expectedAnswer": "escuela"
+          },
+          {
+            "id": 2,
+            "stimulus": "assets/kabc/caras-lugares/personaje_01.png",
+            "question": "¿Quién es?",
+            "options": [
+              "maestro",
+              "doctor",
+              "policia",
+              "cocinero"
+            ],
+            "expectedAnswer": "maestro"
+          },
+          {
+            "id": 3,
+            "stimulus": "assets/kabc/caras-lugares/lugar_02.png",
+            "question": "¿Qué lugar aparece en la imagen?",
+            "options": [
+              "parque",
+              "escuela",
+              "hospital",
+              "biblioteca"
+            ],
+            "expectedAnswer": "parque"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 13,
+        "code": "AR_01",
+        "subtest": "Aritmética",
+        "type": "ARITHMETIC",
+        "instruction": "Resuelve la operación y selecciona la respuesta correcta.",
+        "series": [
+          {
+            "id": 1,
+            "question": "¿Cuánto es 2 + 3?",
+            "options": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "expectedAnswer": 5
+          },
+          {
+            "id": 2,
+            "question": "¿Cuánto es 7 - 2?",
+            "options": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "expectedAnswer": 5
+          },
+          {
+            "id": 3,
+            "question": "¿Cuánto es 3 + 4?",
+            "options": [
+              6,
+              7,
+              8,
+              9
+            ],
+            "expectedAnswer": 7
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 14,
+        "code": "AD_01",
+        "subtest": "Adivinanzas",
+        "type": "RIDDLE",
+        "instruction": "Escucha las pistas y selecciona la respuesta correcta.",
+        "series": [
+          {
+            "id": 1,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/adivinanzas/serie_01_perro.mp3"
+            },
+            "question": "¿Qué soy?",
+            "options": [
+              {
+                "key": "gato",
+                "file": "assets/kabc/adivinanzas/gato.png"
+              },
+              {
+                "key": "perro",
+                "file": "assets/kabc/adivinanzas/perro.png"
+              },
+              {
+                "key": "pez",
+                "file": "assets/kabc/adivinanzas/pez.png"
+              },
+              {
+                "key": "pajaro",
+                "file": "assets/kabc/adivinanzas/pajaro.png"
+              }
+            ],
+            "expectedAnswer": "perro"
+          },
+          {
+            "id": 2,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/adivinanzas/serie_02.mp3"
+            },
+            "question": "¿Qué soy?",
+            "options": [
+              {
+                "key": "gato",
+                "file": "assets/kabc/adivinanzas/gato.png"
+              },
+              {
+                "key": "pez",
+                "file": "assets/kabc/adivinanzas/pez.png"
+              },
+              {
+                "key": "pajaro",
+                "file": "assets/kabc/adivinanzas/pajaro.png"
+              },
+              {
+                "key": "conejo",
+                "file": "assets/kabc/adivinanzas/conejo.png"
+              }
+            ],
+            "expectedAnswer": "gato"
+          },
+          {
+            "id": 3,
+            "stimulus": {
+              "type": "audio",
+              "file": "assets/kabc/adivinanzas/serie_03.mp3"
+            },
+            "question": "¿Qué soy?",
+            "options": [
+              {
+                "key": "sol",
+                "file": "assets/kabc/adivinanzas/sol.png"
+              },
+              {
+                "key": "luna",
+                "file": "assets/kabc/adivinanzas/luna.png"
+              },
+              {
+                "key": "estrella",
+                "file": "assets/kabc/adivinanzas/estrella.png"
+              },
+              {
+                "key": "nube",
+                "file": "assets/kabc/adivinanzas/nube.png"
+              }
+            ],
+            "expectedAnswer": "sol"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 15,
+        "code": "LD_01",
+        "subtest": "Lectura / Decodificación",
+        "type": "READING",
+        "instruction": "Lee la palabra en voz alta.",
+        "responseType": "AUDIO_RECORDING",
+        "series": [
+          {
+            "id": 1,
+            "word": "CASA",
+            "promptAudio": "assets/kabc/lectura/serie_01.mp3",
+            "expectedAnswer": "CASA"
+          },
+          {
+            "id": 2,
+            "word": "MESA",
+            "promptAudio": "assets/kabc/lectura/serie_02.mp3",
+            "expectedAnswer": "MESA"
+          },
+          {
+            "id": 3,
+            "word": "PELOTA",
+            "promptAudio": "assets/kabc/lectura/serie_03.mp3",
+            "expectedAnswer": "PELOTA"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      },
+      {
+        "id": 16,
+        "code": "LC_01",
+        "subtest": "Lectura / Comprensión",
+        "type": "READING_COMPREHENSION",
+        "instruction": "Lee la instrucción y realiza la acción indicada sobre la escena.",
+        "series": [
+          {
+            "id": 1,
+            "instructionText": "Toca el círculo rojo.",
+            "scene": "assets/kabc/lectura-comprension/escena_01.png",
+            "elements": [
+              "circulo_rojo",
+              "cuadrado_azul",
+              "estrella_amarilla"
+            ],
+            "expectedAnswer": "touch:circulo_rojo"
+          },
+          {
+            "id": 2,
+            "instructionText": "Arrastra la estrella amarilla al cuadrado azul.",
+            "scene": "assets/kabc/lectura-comprension/escena_02.png",
+            "elements": [
+              "estrella_amarilla",
+              "cuadrado_azul",
+              "circulo_rojo"
+            ],
+            "expectedAnswer": "drag:estrella_amarilla->cuadrado_azul"
+          },
+          {
+            "id": 3,
+            "instructionText": "Toca el cuadrado azul.",
+            "scene": "assets/kabc/lectura-comprension/escena_03.png",
+            "elements": [
+              "cuadrado_azul",
+              "circulo_rojo",
+              "estrella_amarilla"
+            ],
+            "expectedAnswer": "touch:cuadrado_azul"
+          }
+        ],
+        "scoringRule": "ALL_SERIES_CORRECT",
+        "maxScore": 1
+      }
+    ]
+  }
+}

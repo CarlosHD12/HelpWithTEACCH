@@ -1,0 +1,209 @@
+{
+  "assessment": {
+    "code": "QCHAT",
+    "version": "prototype-1.0",
+    "name": "Q-CHAT - Cuestionario",
+    "language": "es-PE",
+    "scoring": {
+      "unit": "ITEM",
+      "itemScoreMin": 0,
+      "itemScoreMax": 1,
+      "partialScore": false,
+      "responseType": "SINGLE_CHOICE",
+      "options": [
+        {
+          "key": "SI",
+          "label": "Sí",
+          "value": 1
+        },
+        {
+          "key": "NO",
+          "label": "No",
+          "value": 0
+        }
+      ]
+    },
+    "items": [
+      {
+        "id": 1,
+        "code": "A1",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo mira hacia ti cuando lo llamas por su nombre?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "code": "A2",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo busca o mantiene el contacto visual contigo?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "code": "A3",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo señala para indicar que quiere algo? (por ejemplo, un juguete fuera de su alcance)",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "code": "A4",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo señala para compartir contigo algo que le interesa? (por ejemplo, algo interesante que ha visto)",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "code": "A5",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo hace juegos de imaginación? (por ejemplo, cuidar muñecas o hablar por un teléfono de juguete)",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "code": "A6",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo sigue hacia dónde estás mirando?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "code": "A7",
+        "type": "SINGLE_CHOICE",
+        "question": "Si tú u otro familiar está visiblemente molesto, ¿tu hijo muestra señales de querer consolarlo?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "code": "A8",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Su hijo utilizó palabras para comunicarse cuando comenzó a desarrollar el lenguaje?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "code": "A9",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo utiliza gestos simples? (por ejemplo, decir adiós con la mano)",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "code": "A10",
+        "type": "SINGLE_CHOICE",
+        "question": "¿Tu hijo mira fijamente objetos o hacia la nada sin un propósito aparente?",
+        "options": [
+          {
+            "key": "SI",
+            "label": "Sí",
+            "value": 1
+          },
+          {
+            "key": "NO",
+            "label": "No",
+            "value": 0
+          }
+        ]
+      }
+    ]
+  }
+}
