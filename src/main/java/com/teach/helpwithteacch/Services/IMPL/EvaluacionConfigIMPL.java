@@ -21,12 +21,28 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
             String numeroVersion
     ) {
 
-        String carpeta = tipoPrueba.toLowerCase();
+        if (tipoPrueba == null || tipoPrueba.isBlank()) {
+            throw new IllegalArgumentException(
+                    "El tipo de prueba no puede estar vacío"
+            );
+        }
+
+        if (numeroVersion == null || numeroVersion.isBlank()) {
+            throw new IllegalArgumentException(
+                    "El número de versión no puede estar vacío"
+            );
+        }
+
+        String carpeta = tipoPrueba
+                .trim()
+                .toLowerCase();
+
+        String version = numeroVersion.trim();
 
         String ruta = String.format(
                 "evaluaciones/%s/prototype-%s.json",
                 carpeta,
-                numeroVersion
+                version
         );
 
         ClassPathResource resource =
@@ -34,7 +50,8 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
 
         if (!resource.exists()) {
             throw new IllegalArgumentException(
-                    "No existe la configuración de la evaluación: " + ruta
+                    "No existe la configuración de la evaluación: "
+                            + ruta
             );
         }
 
@@ -46,7 +63,8 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
 
         } catch (IOException e) {
             throw new IllegalStateException(
-                    "Error al leer la configuración de la evaluación: " + ruta,
+                    "Error al leer la configuración de la evaluación: "
+                            + ruta,
                     e
             );
         }
