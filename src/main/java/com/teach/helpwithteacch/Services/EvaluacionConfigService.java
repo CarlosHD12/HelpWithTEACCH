@@ -1,4 +1,7 @@
 package com.teach.helpwithteacch.Services;
 
-public class EvaluacionConfigService {
+import com.teach.helpwithteacch.DTO.EvaluacionConfig.EvaluacionConfigResponse;
+
+public interface EvaluacionConfigService {
+    EvaluacionConfigResponse obtenerConfiguracion(String tipoPrueba, String numeroVersion);
 }

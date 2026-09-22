@@ -1,6 +1,7 @@
 package com.teach.helpwithteacch.Controller;
 
 import com.teach.helpwithteacch.DTO.Evaluacion.*;
+import com.teach.helpwithteacch.DTO.EvaluacionConfig.EvaluacionConfigResponse;
 import com.teach.helpwithteacch.Enum.EstadoEvaluacion;
 import com.teach.helpwithteacch.Services.EvaluacionService;
 import jakarta.validation.Valid;
@@ -105,6 +106,15 @@ public class EvaluacionController {
                         fechaHasta,
                         pageable
                 )
+        );
+    }
+
+    @GetMapping("/{idEvaluacion}/configuracion")
+    public ResponseEntity<EvaluacionConfigResponse> obtenerConfiguracion(
+            @PathVariable Long idEvaluacion
+    ) {
+        return ResponseEntity.ok(
+                evaluacionService.obtenerConfiguracion(idEvaluacion)
         );
     }
 }

@@ -1,8 +1,10 @@
 package com.teach.helpwithteacch.Services.IMPL;
 
 import com.teach.helpwithteacch.DTO.Evaluacion.*;
+import com.teach.helpwithteacch.DTO.EvaluacionConfig.EvaluacionConfigResponse;
 import com.teach.helpwithteacch.Entidades.Evaluacion;
 import com.teach.helpwithteacch.Entidades.Nino;
+import com.teach.helpwithteacch.Entidades.Prueba;
 import com.teach.helpwithteacch.Entidades.Version;
 import com.teach.helpwithteacch.Enum.Estado;
 import com.teach.helpwithteacch.Enum.EstadoEvaluacion;
@@ -13,6 +15,7 @@ import com.teach.helpwithteacch.Repository.VersionRepos;
 import com.teach.helpwithteacch.Security.Entidades.Usuario;
 import com.teach.helpwithteacch.Security.Exceptions.*;
 import com.teach.helpwithteacch.Security.Repository.UsuarioRepos;
+import com.teach.helpwithteacch.Services.EvaluacionConfigService;
 import com.teach.helpwithteacch.Services.EvaluacionService;
 import com.teach.helpwithteacch.Specification.EvaluacionSpecification;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class EvaluacionIMPL implements EvaluacionService {
     private final UsuarioRepos usuarioRepos;
     private final VersionRepos versionRepos;
     private final EvaluacionMapper evaluacionMapper;
+    private final EvaluacionConfigService evaluacionConfigService;
 
     @Override
     public EvaluacionResponse crear(EvaluacionRequest request) {
@@ -128,6 +132,50 @@ public class EvaluacionIMPL implements EvaluacionService {
         evaluacion.setFechaUltimoAcceso(LocalDateTime.now());
 
         return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EvaluacionConfigResponse obtenerConfiguracion(
+            Long idEvaluacion
+    ) {
+
+        Evaluacion evaluacion = buscarEvaluacion(idEvaluacion);
+
+        Version version = evaluacion.getVersion();
+
+        if (version == null) {
+            throw new IllegalStateException(
+                    "La evaluación no tiene una versión asociada"
+            );
+        }
+
+        Prueba prueba = version.getPrueba();
+
+        if (prueba == null) {
+            throw new IllegalStateException(
+                    "La versión no tiene una prueba asociada"
+            );
+        }
+
+        if (prueba.getTipo() == null) {
+            throw new IllegalStateException(
+                    "La prueba no tiene un tipo definido"
+            );
+        }
+
+        if (version.getNumeroVersion() == null
+                || version.getNumeroVersion().isBlank()) {
+
+            throw new IllegalStateException(
+                    "La versión no tiene un número de versión definido"
+            );
+        }
+
+        return evaluacionConfigService.obtenerConfiguracion(
+                prueba.getTipo().name(),
+                version.getNumeroVersion()
+        );
     }
 
     @Override

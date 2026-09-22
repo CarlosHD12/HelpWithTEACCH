@@ -1,6 +1,7 @@
 package com.teach.helpwithteacch.Services;
 
 import com.teach.helpwithteacch.DTO.Evaluacion.*;
+import com.teach.helpwithteacch.DTO.EvaluacionConfig.EvaluacionConfigResponse;
 import com.teach.helpwithteacch.Enum.EstadoEvaluacion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public interface EvaluacionService {
             LocalDateTime fechaHasta,
             Pageable pageable
     );
+    EvaluacionConfigResponse obtenerConfiguracion(Long idEvaluacion);
     EvaluacionResponse pausar(Long idEvaluacion);
     EvaluacionResponse reanudar(Long idEvaluacion);
     EvaluacionResponse cancelar(Long idEvaluacion);

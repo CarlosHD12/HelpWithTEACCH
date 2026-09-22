@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(
         name = "version",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_version_prueba_version", columnNames = {"id_prueba", "version"})
+                @UniqueConstraint(name = "uk_version_prueba_version", columnNames = {"id_prueba", "numero_version"})
         },
         indexes = {
                 @Index(name = "idx_version_prueba", columnList = "id_prueba"),
