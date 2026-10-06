@@ -58,25 +58,27 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-    List.of(
-        "http://localhost:4200",
-        "https://front-end-help-with-teacch.vercel.app"
-    )
-);
+                List.of(
+                        "http://localhost:4200",
+                        "https://front-end-help-with-teacch.vercel.app"
+                )
+        );
 
-       configuration.setAllowedMethods(
-        List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE",
-                "OPTIONS"
-        )
-);
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS"
+                )
+        );
+
         configuration.setAllowedHeaders(
                 List.of("*")
         );
@@ -111,6 +113,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Rutas públicas
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
@@ -118,15 +122,19 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
+                        // Rutas de administrador
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
 
+                        // Rutas de docente
                         .requestMatchers("/api/docentes/**")
                         .hasRole("DOCENTE")
 
+                        // Rutas de padre
                         .requestMatchers("/api/padres/**")
                         .hasRole("PADRE")
 
+                        // Cualquier otra ruta requiere autenticación
                         .anyRequest()
                         .authenticated()
                 )
