@@ -2,7 +2,6 @@ package com.teach.helpwithteacch.Specification;
 
 import com.teach.helpwithteacch.Entidades.Evaluacion;
 import com.teach.helpwithteacch.Enum.EstadoEvaluacion;
-import com.teach.helpwithteacch.Security.Config.CommonSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -20,39 +19,118 @@ public final class EvaluacionSpecification {
             LocalDateTime fechaDesde,
             LocalDateTime fechaHasta
     ) {
-        return Specification.allOf(
-                idNino == null
-                        ? null
-                        : (root, query, criteriaBuilder) ->
-                        criteriaBuilder.equal(
-                                root.get("nino").get("idNino"),
-                                idNino
-                        ),
-                idUsuario == null
-                        ? null
-                        : (root, query, criteriaBuilder) ->
-                        criteriaBuilder.equal(
-                                root.get("usuario").get("idUsuario"),
-                                idUsuario
-                        ),
-                idPrueba == null
-                        ? null
-                        : (root, query, criteriaBuilder) ->
-                        criteriaBuilder.equal(
-                                root.get("version")
-                                        .get("prueba")
-                                        .get("idPrueba"),
-                                idPrueba
-                        ),
-                CommonSpecification.igual("estado", estado),
-                CommonSpecification.mayorOIgual(
-                        "fechaEvaluacion",
-                        fechaDesde
-                ),
-                CommonSpecification.menorOIgual(
-                        "fechaEvaluacion",
-                        fechaHasta
-                )
-        );
+
+        Specification<Evaluacion> specification =
+                (root, query, criteriaBuilder) ->
+                        criteriaBuilder.conjunction();
+
+
+        // =====================================================
+        // FILTRO POR NIÑO
+        // =====================================================
+
+        if (idNino != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(
+                                    root.get("nino")
+                                            .get("idNino"),
+                                    idNino
+                            )
+            );
+
+        }
+
+
+        // =====================================================
+        // FILTRO POR USUARIO
+        // =====================================================
+
+        if (idUsuario != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(
+                                    root.get("usuario")
+                                            .get("idUsuario"),
+                                    idUsuario
+                            )
+            );
+
+        }
+
+
+        // =====================================================
+        // FILTRO POR PRUEBA
+        // =====================================================
+
+        if (idPrueba != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(
+                                    root.get("version")
+                                            .get("prueba")
+                                            .get("idPrueba"),
+                                    idPrueba
+                            )
+            );
+
+        }
+
+
+        // =====================================================
+        // FILTRO POR ESTADO
+        // =====================================================
+
+        if (estado != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(
+                                    root.get("estado"),
+                                    estado
+                            )
+            );
+
+        }
+
+
+        // =====================================================
+        // FECHA DESDE
+        // =====================================================
+
+        if (fechaDesde != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.greaterThanOrEqualTo(
+                                    root.get("fechaEvaluacion"),
+                                    fechaDesde
+                            )
+            );
+
+        }
+
+
+        // =====================================================
+        // FECHA HASTA
+        // =====================================================
+
+        if (fechaHasta != null) {
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.lessThanOrEqualTo(
+                                    root.get("fechaEvaluacion"),
+                                    fechaHasta
+                            )
+            );
+
+        }
+
+
+        return specification;
     }
 }

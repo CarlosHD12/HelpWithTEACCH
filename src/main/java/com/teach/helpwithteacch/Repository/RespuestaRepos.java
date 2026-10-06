@@ -15,4 +15,5 @@ public interface RespuestaRepos extends JpaRepository<Respuesta, Long>, JpaSpeci
     boolean existsByEvaluacion_IdEvaluacionAndItemIdAndSerieId(Long idEvaluacion, Integer itemId, Integer serieId);
     List<Respuesta> findByEvaluacion_IdEvaluacionOrderByItemIdAscSerieIdAsc(Long idEvaluacion);
     long countByEvaluacion_IdEvaluacion(Long idEvaluacion);
+
 }

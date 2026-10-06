@@ -20,7 +20,7 @@ public class NinoController {
     private final NinoService ninoService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<NinoResponse> crear(
             @Valid @RequestBody NinoRequest request
     ) {
@@ -29,7 +29,7 @@ public class NinoController {
     }
 
     @PutMapping("/{idNino}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<NinoResponse> editar(
             @PathVariable Long idNino,
             @Valid @RequestBody NinoEditRequest request
@@ -49,7 +49,7 @@ public class NinoController {
     }
 
     @GetMapping("/{idNino}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<NinoResponse> obtenerPorId(
             @PathVariable Long idNino
     ) {
@@ -59,7 +59,7 @@ public class NinoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<Page<NinoResponse>> listar(
             @RequestParam(required = false) String nombres,
             @RequestParam(required = false) String apellidos,

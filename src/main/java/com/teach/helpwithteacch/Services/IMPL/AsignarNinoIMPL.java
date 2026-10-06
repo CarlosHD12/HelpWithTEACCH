@@ -16,6 +16,8 @@ import com.teach.helpwithteacch.Specification.AsignarNinoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,12 +41,15 @@ public class AsignarNinoIMPL implements AsignarNinoService {
         request.getItems().forEach(item -> {
             Nino nino = buscarNino(item.getIdNino());
             validarNinoActivo(nino);
-            validarAsignacionDisponible(usuario.getIdUsuario(), nino.getIdNino());
+            validarAsignacionDisponible(
+                    usuario.getIdUsuario(),
+                    nino.getIdNino()
+            );
 
             AsignarNino asignarNino = new AsignarNino();
             asignarNino.setUsuario(usuario);
             asignarNino.setNino(nino);
-            asignarNino.setFechaAsignacion(java.time.LocalDateTime.now());
+            asignarNino.setFechaAsignacion(LocalDateTime.now());
             asignarNino.setEstado(Estado.ACTIVO);
 
             asignarNinoRepos.save(asignarNino);
@@ -52,7 +57,10 @@ public class AsignarNinoIMPL implements AsignarNinoService {
     }
 
     @Override
-    public AsignarNinoResponse editar(Long idAsignarNino, AsignarNinoEditRequest request) {
+    public AsignarNinoResponse editar(
+            Long idAsignarNino,
+            AsignarNinoEditRequest request
+    ) {
         AsignarNino asignarNino = buscarAsignacion(idAsignarNino);
         validarAsignacionActiva(asignarNino);
 
@@ -62,15 +70,25 @@ public class AsignarNinoIMPL implements AsignarNinoService {
         Nino nino = buscarNino(request.getIdNino());
         validarNinoActivo(nino);
 
-        if (!asignarNino.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())
-                || !asignarNino.getNino().getIdNino().equals(nino.getIdNino())) {
-            validarAsignacionDisponible(usuario.getIdUsuario(), nino.getIdNino());
+        if (!asignarNino.getUsuario().getIdUsuario().equals(
+                usuario.getIdUsuario()
+        )
+                || !asignarNino.getNino().getIdNino().equals(
+                nino.getIdNino()
+        )) {
+
+            validarAsignacionDisponible(
+                    usuario.getIdUsuario(),
+                    nino.getIdNino()
+            );
         }
 
         asignarNino.setUsuario(usuario);
         asignarNino.setNino(nino);
 
-        return asignarNinoMapper.toResponse(asignarNinoRepos.save(asignarNino));
+        return asignarNinoMapper.toResponse(
+                asignarNinoRepos.save(asignarNino)
+        );
     }
 
     @Override
@@ -86,7 +104,9 @@ public class AsignarNinoIMPL implements AsignarNinoService {
     @Override
     @Transactional(readOnly = true)
     public AsignarNinoResponse obtenerPorId(Long idAsignarNino) {
-        return asignarNinoMapper.toResponse(buscarAsignacion(idAsignarNino));
+        return asignarNinoMapper.toResponse(
+                buscarAsignacion(idAsignarNino)
+        );
     }
 
     @Override
@@ -97,12 +117,55 @@ public class AsignarNinoIMPL implements AsignarNinoService {
             Estado estado,
             LocalDateTime fechaDesde,
             LocalDateTime fechaHasta,
-            Pageable pageable
+            Pageable pageable,
+            Authentication authentication
     ) {
+
+        boolean esAdmin = authentication.getAuthorities()
+                .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        /*
+         * Si no es ADMIN, solamente puede consultar
+         * sus propias asignaciones.
+         */
+        if (!esAdmin) {
+
+            String emailUsuarioAutenticado = authentication.getName();
+
+            Usuario usuarioAutenticado = usuarioRepos
+                    .findByEmail(emailUsuarioAutenticado)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "No se encontró el usuario autenticado"
+                    ));
+
+            Long idUsuarioAutenticado =
+                    usuarioAutenticado.getIdUsuario();
+
+            /*
+             * Si se intenta consultar otro usuario,
+             * se rechaza la solicitud.
+             */
+            if (idUsuario != null &&
+                    !idUsuario.equals(idUsuarioAutenticado)) {
+
+                throw new BadRequestException(
+                        "No tiene permiso para consultar las asignaciones de otro usuario"
+                );
+            }
+
+            /*
+             * Se fuerza el filtro al usuario autenticado.
+             */
+            idUsuario = idUsuarioAutenticado;
+        }
+
         Pageable pageableOrdenado = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "idAsignarNino")
+                Sort.by(
+                        Sort.Direction.DESC,
+                        "idAsignarNino"
+                )
         );
 
         Specification<AsignarNino> specification =
@@ -123,28 +186,33 @@ public class AsignarNinoIMPL implements AsignarNinoService {
     private AsignarNino buscarAsignacion(Long idAsignarNino) {
         return asignarNinoRepos.findById(idAsignarNino)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró la asignación de niño con ID: " + idAsignarNino
+                        "No se encontró la asignación de niño con ID: "
+                                + idAsignarNino
                 ));
     }
 
     private Usuario buscarUsuario(Long idUsuario) {
         return usuarioRepos.findById(idUsuario)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró el usuario con ID: " + idUsuario
+                        "No se encontró el usuario con ID: "
+                                + idUsuario
                 ));
     }
 
     private Nino buscarNino(Long idNino) {
         return ninoRepos.findById(idNino)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró el niño con ID: " + idNino
+                        "No se encontró el niño con ID: "
+                                + idNino
                 ));
     }
 
     private void validarUsuarioActivo(Usuario usuario) {
         if (usuario.getEstado() != Estado.ACTIVO) {
             throw new BadRequestException(
-                    "El usuario con ID " + usuario.getIdUsuario() + " se encuentra inactivo"
+                    "El usuario con ID "
+                            + usuario.getIdUsuario()
+                            + " se encuentra inactivo"
             );
         }
     }
@@ -152,21 +220,35 @@ public class AsignarNinoIMPL implements AsignarNinoService {
     private void validarNinoActivo(Nino nino) {
         if (nino.getEstado() != Estado.ACTIVO) {
             throw new BadRequestException(
-                    "El niño con ID " + nino.getIdNino() + " se encuentra inactivo"
+                    "El niño con ID "
+                            + nino.getIdNino()
+                            + " se encuentra inactivo"
             );
         }
     }
 
-    private void validarAsignacionActiva(AsignarNino asignarNino) {
+    private void validarAsignacionActiva(
+            AsignarNino asignarNino
+    ) {
         if (asignarNino.getEstado() != Estado.ACTIVO) {
             throw new BadRequestException(
-                    "La asignación con ID " + asignarNino.getIdAsignarNino() + " se encuentra inactiva"
+                    "La asignación con ID "
+                            + asignarNino.getIdAsignarNino()
+                            + " se encuentra inactiva"
             );
         }
     }
 
-    private void validarAsignacionDisponible(Long idUsuario, Long idNino) {
-        if (asignarNinoRepos.existsByUsuario_IdUsuarioAndNino_IdNino(idUsuario, idNino)) {
+    private void validarAsignacionDisponible(
+            Long idUsuario,
+            Long idNino
+    ) {
+        if (asignarNinoRepos
+                .existsByUsuario_IdUsuarioAndNino_IdNino(
+                        idUsuario,
+                        idNino
+                )) {
+
             throw new ConflictException(
                     "El niño ya se encuentra asignado al usuario"
             );

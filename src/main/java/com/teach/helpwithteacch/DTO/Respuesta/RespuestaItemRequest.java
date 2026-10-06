@@ -18,5 +18,4 @@ public class RespuestaItemRequest {
     private String tipo;
 
     @NotNull(message = "Valor de respuesta requerido")
-    private Object valor;
-}
+    private Object valor;}

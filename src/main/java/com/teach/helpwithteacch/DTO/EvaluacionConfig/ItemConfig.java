@@ -2,7 +2,6 @@ package com.teach.helpwithteacch.DTO.EvaluacionConfig;
 
 import lombok.*;
 import tools.jackson.databind.JsonNode;
-
 import java.util.List;
 
 @Getter

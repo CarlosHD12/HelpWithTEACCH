@@ -1,7 +1,7 @@
 package com.teach.helpwithteacch.Services.IMPL;
 
 import com.teach.helpwithteacch.DTO.Evaluacion.*;
-import com.teach.helpwithteacch.DTO.EvaluacionConfig.EvaluacionConfigResponse;
+import com.teach.helpwithteacch.DTO.EvaluacionConfig.*;
 import com.teach.helpwithteacch.Entidades.Evaluacion;
 import com.teach.helpwithteacch.Entidades.Nino;
 import com.teach.helpwithteacch.Entidades.Prueba;
@@ -9,6 +9,7 @@ import com.teach.helpwithteacch.Entidades.Version;
 import com.teach.helpwithteacch.Enum.Estado;
 import com.teach.helpwithteacch.Enum.EstadoEvaluacion;
 import com.teach.helpwithteacch.Mapper.EvaluacionMapper;
+import com.teach.helpwithteacch.Repository.AsignarNinoRepos;
 import com.teach.helpwithteacch.Repository.EvaluacionRepos;
 import com.teach.helpwithteacch.Repository.NinoRepos;
 import com.teach.helpwithteacch.Repository.VersionRepos;
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,7 @@ public class EvaluacionIMPL implements EvaluacionService {
     private final VersionRepos versionRepos;
     private final EvaluacionMapper evaluacionMapper;
     private final EvaluacionConfigService evaluacionConfigService;
+    private final AsignarNinoRepos asignarNinoRepos;
 
     @Override
     public EvaluacionResponse crear(EvaluacionRequest request) {
@@ -46,12 +51,21 @@ public class EvaluacionIMPL implements EvaluacionService {
         Usuario usuario = buscarUsuario(request.getIdUsuario());
         validarUsuarioActivo(usuario);
 
+        validarNinoAsignado(
+                usuario.getIdUsuario(),
+                nino.getIdNino()
+        );
+
         Version version = buscarVersion(request.getIdVersion());
         validarVersionActiva(version);
 
-        validarEvaluacionEnCurso(nino.getIdNino(), usuario.getIdUsuario());
+        validarEvaluacionEnCurso(
+                nino.getIdNino(),
+                usuario.getIdUsuario()
+        );
 
         Evaluacion evaluacion = evaluacionMapper.toEntity(request);
+
         evaluacion.setNino(nino);
         evaluacion.setUsuario(usuario);
         evaluacion.setVersion(version);
@@ -63,20 +77,26 @@ public class EvaluacionIMPL implements EvaluacionService {
         evaluacion.setFechaInicio(LocalDateTime.now());
         evaluacion.setFechaUltimoAcceso(LocalDateTime.now());
 
-        return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+        return evaluacionMapper.toResponse(
+                evaluacionRepos.save(evaluacion)
+        );
     }
 
     @Override
-    public EvaluacionResponse actualizarProgreso(Long idEvaluacion, EvaluacionEditRequest request) {
+    public EvaluacionResponse actualizarProgreso(
+            Long idEvaluacion,
+            EvaluacionEditRequest request) {
+
         Evaluacion evaluacion = buscarEvaluacion(idEvaluacion);
         validarPuedeEditar(evaluacion);
 
         evaluacion.setItemActual(request.getItemActual());
         evaluacion.setSerieActual(request.getSerieActual());
-        evaluacion.setProgreso(request.getProgreso());
         evaluacion.setFechaUltimoAcceso(LocalDateTime.now());
 
-        return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+        return evaluacionMapper.toResponse(
+                evaluacionRepos.save(evaluacion)
+        );
     }
 
     @Override
@@ -219,6 +239,73 @@ public class EvaluacionIMPL implements EvaluacionService {
 
         return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
     }
+    @Override
+public EvaluacionResponse finalizar(Long idEvaluacion) {
+
+    Evaluacion evaluacion =
+            buscarEvaluacion(idEvaluacion);
+
+    if (evaluacion.getEstado() != EstadoEvaluacion.EN_PROGRESO) {
+        throw new BadRequestException(
+                "La evaluación con ID " + idEvaluacion
+                        + " no se encuentra en progreso"
+        );
+    }
+
+    evaluacion.setEstado(
+            EstadoEvaluacion.COMPLETADA
+    );
+
+    evaluacion.setFechaUltimoAcceso(
+            LocalDateTime.now()
+    );
+
+    return evaluacionMapper.toResponse(
+            evaluacionRepos.save(evaluacion)
+    );
+}
+
+    private boolean esUltimaPregunta(Evaluacion evaluacion, Integer itemActual, Integer serieActual) {
+        if (itemActual == null || serieActual == null) {
+            return false;
+        }
+
+        EvaluacionConfigResponse configuracion =
+                obtenerConfiguracion(evaluacion.getIdEvaluacion());
+
+        if (configuracion == null
+                || configuracion.getAssessment() == null
+                || configuracion.getAssessment().getItems() == null
+                || configuracion.getAssessment().getItems().isEmpty()) {
+            return false;
+        }
+
+        List<ItemConfig> items =
+                configuracion.getAssessment().getItems();
+
+        ItemConfig ultimoItem = items.stream()
+                .filter(item -> item.getId() != null)
+                .max(Comparator.comparing(ItemConfig::getId))
+                .orElse(null);
+
+        if (ultimoItem == null
+                || ultimoItem.getSeries() == null
+                || ultimoItem.getSeries().isEmpty()) {
+            return false;
+        }
+
+        SerieConfig ultimaSerie = ultimoItem.getSeries().stream()
+                .filter(serie -> serie.getId() != null)
+                .max(Comparator.comparing(SerieConfig::getId))
+                .orElse(null);
+
+        if (ultimaSerie == null) {
+            return false;
+        }
+
+        return Objects.equals(itemActual, ultimoItem.getId())
+                && Objects.equals(serieActual, ultimaSerie.getId());
+    }
 
     private Evaluacion buscarEvaluacion(Long idEvaluacion) {
         return evaluacionRepos.findById(idEvaluacion)
@@ -252,6 +339,15 @@ public class EvaluacionIMPL implements EvaluacionService {
         if (nino.getEstado() != Estado.ACTIVO) {
             throw new BadRequestException(
                     "El niño con ID " + nino.getIdNino() + " se encuentra inactivo"
+            );
+        }
+    }
+
+    private void validarNinoAsignado(Long idUsuario, Long idNino) {
+        if (!asignarNinoRepos.existsByUsuario_IdUsuarioAndNino_IdNino(idUsuario, idNino)) {
+            throw new BadRequestException(
+                    "El niño con ID " + idNino
+                            + " no está asignado al usuario con ID " + idUsuario
             );
         }
     }

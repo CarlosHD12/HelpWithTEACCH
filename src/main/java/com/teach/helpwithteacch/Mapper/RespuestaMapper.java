@@ -2,13 +2,15 @@ package com.teach.helpwithteacch.Mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teach.helpwithteacch.DTO.Respuesta.*;
+import com.teach.helpwithteacch.DTO.Respuesta.RespuestaItemRequest;
+import com.teach.helpwithteacch.DTO.Respuesta.RespuestaResponse;
 import com.teach.helpwithteacch.Entidades.Respuesta;
 import com.teach.helpwithteacch.Security.Config.CommonMapper;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", config = CommonMapper.class)
 public interface RespuestaMapper {
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     @Mapping(target = "idRespuesta", ignore = true)
     @Mapping(target = "evaluacion", ignore = true)
     @Mapping(target = "correcta", ignore = true)
@@ -22,6 +24,9 @@ public interface RespuestaMapper {
     @Mapping(target = "idEvaluacion", source = "evaluacion.idEvaluacion")
     RespuestaResponse toResponse(Respuesta respuesta);
     default JsonNode map(Object value) {
-        return new ObjectMapper().valueToTree(value);
+        return value == null ? null : OBJECT_MAPPER.valueToTree(value);
+    }
+    default Object map(JsonNode value) {
+        return value == null ? null : OBJECT_MAPPER.convertValue(value, Object.class);
     }
 }

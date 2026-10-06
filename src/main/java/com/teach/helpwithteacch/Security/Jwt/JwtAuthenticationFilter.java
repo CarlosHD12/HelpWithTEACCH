@@ -69,9 +69,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
-        } catch (Exception e) {
-            SecurityContextHolder.clearContext();
-        }
+       } catch (Exception e) {
+    e.printStackTrace();
+    SecurityContextHolder.clearContext();
+}
 
         filterChain.doFilter(request, response);
     }

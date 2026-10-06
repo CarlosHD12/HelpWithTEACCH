@@ -1,7 +1,7 @@
 {
   "assessment": {
     "code": "QCHAT",
-    "version": "prototype-1.0",
+    "version": "1.0",
     "name": "Q-CHAT - Cuestionario",
     "language": "es-PE",
     "scoring": {

@@ -74,6 +74,15 @@ public class EvaluacionController {
                 evaluacionService.cancelar(idEvaluacion)
         );
     }
+    @PatchMapping("/{idEvaluacion}/finalizar")
+@PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
+public ResponseEntity<EvaluacionResponse> finalizar(
+        @PathVariable Long idEvaluacion
+) {
+    return ResponseEntity.ok(
+            evaluacionService.finalizar(idEvaluacion)
+    );
+}
 
     @GetMapping("/{idEvaluacion}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")

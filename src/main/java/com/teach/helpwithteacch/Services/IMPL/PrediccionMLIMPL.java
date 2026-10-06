@@ -8,6 +8,9 @@ import com.teach.helpwithteacch.Enum.*;
 import com.teach.helpwithteacch.Mapper.PrediccionMLMapper;
 import com.teach.helpwithteacch.Repository.*;
 import com.teach.helpwithteacch.Security.Entidades.Usuario;
+import com.teach.helpwithteacch.Security.Exceptions.BadRequestException;
+import com.teach.helpwithteacch.Security.Exceptions.ConflictException;
+import com.teach.helpwithteacch.Security.Exceptions.ResourceNotFoundException;
 import com.teach.helpwithteacch.Services.PrediccionMLService;
 import com.teach.helpwithteacch.Specification.PrediccionMLSpecification;
 import lombok.RequiredArgsConstructor;
@@ -38,74 +41,55 @@ public class PrediccionMLIMPL implements PrediccionMLService {
     @Transactional
     public List<PrediccionMLResponse> generar(Long idEvaluacion) {
 
-        if (idEvaluacion == null || idEvaluacion <= 0) {
-            throw new RuntimeException(
-                    "El ID de la evaluación es obligatorio y debe ser mayor que cero"
-            );
-        }
+        validarId(idEvaluacion, "El ID de la evaluación es obligatorio y debe ser mayor que cero");
 
         Evaluacion evaluacion = evaluacionRepos
                 .findById(idEvaluacion)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Evaluación no encontrada"
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se encontró la evaluación con ID: " + idEvaluacion
+                ));
 
         validarEvaluacion(evaluacion);
 
-        QChatMLRequest request =
-                construirRequest(evaluacion);
+        QChatMLRequest request = construirRequest(evaluacion);
 
-        QChatMLResponse response =
-                prediccionIAClient.predecir(request);
+        QChatMLResponse response = prediccionIAClient.predecir(request);
 
         validarRespuestaIA(response);
 
-        guardarPredicciones(
-                evaluacion,
-                response
-        );
+        guardarPredicciones(evaluacion, response);
 
         return listarPorEvaluacion(idEvaluacion);
     }
 
-    private void validarEvaluacion(
-            Evaluacion evaluacion
-    ) {
-
-        if (evaluacion == null) {
-            throw new RuntimeException(
-                    "La evaluación es obligatoria"
-            );
-        }
+    private void validarEvaluacion(Evaluacion evaluacion) {
 
         if (evaluacion.getEstado() != EstadoEvaluacion.COMPLETADA) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación debe estar completada para generar la predicción"
             );
         }
 
         if (evaluacion.getNino() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación no tiene un niño asociado"
             );
         }
 
         if (evaluacion.getUsuario() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación no tiene un usuario asociado"
             );
         }
 
         if (evaluacion.getVersion() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación no tiene una versión de prueba asociada"
             );
         }
 
         if (evaluacion.getVersion().getPrueba() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La versión de la evaluación no tiene una prueba asociada"
             );
         }
@@ -114,15 +98,13 @@ public class PrediccionMLIMPL implements PrediccionMLService {
                 .getPrueba()
                 .getTipo() != TipoPrueba.QCHAT) {
 
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "Las predicciones ML solo están disponibles para Q-CHAT"
             );
         }
     }
 
-    private QChatMLRequest construirRequest(
-            Evaluacion evaluacion
-    ) {
+    private QChatMLRequest construirRequest(Evaluacion evaluacion) {
 
         Nino nino = evaluacion.getNino();
         Usuario usuario = evaluacion.getUsuario();
@@ -133,7 +115,7 @@ public class PrediccionMLIMPL implements PrediccionMLService {
                 );
 
         if (respuestas == null || respuestas.isEmpty()) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación no tiene respuestas registradas"
             );
         }
@@ -143,78 +125,35 @@ public class PrediccionMLIMPL implements PrediccionMLService {
 
         validarRespuestasQChat(respuestasQChat);
 
-        QChatMLRequest request =
-                new QChatMLRequest();
+        QChatMLRequest request = new QChatMLRequest();
 
-        request.setA1(
-                respuestasQChat.get(1)
-        );
+        request.setA1(respuestasQChat.get(1));
+        request.setA2(respuestasQChat.get(2));
+        request.setA3(respuestasQChat.get(3));
+        request.setA4(respuestasQChat.get(4));
+        request.setA5(respuestasQChat.get(5));
+        request.setA6(respuestasQChat.get(6));
+        request.setA7(respuestasQChat.get(7));
+        request.setA8(respuestasQChat.get(8));
+        request.setA9(respuestasQChat.get(9));
+        request.setA10(respuestasQChat.get(10));
 
-        request.setA2(
-                respuestasQChat.get(2)
-        );
-
-        request.setA3(
-                respuestasQChat.get(3)
-        );
-
-        request.setA4(
-                respuestasQChat.get(4)
-        );
-
-        request.setA5(
-                respuestasQChat.get(5)
-        );
-
-        request.setA6(
-                respuestasQChat.get(6)
-        );
-
-        request.setA7(
-                respuestasQChat.get(7)
-        );
-
-        request.setA8(
-                respuestasQChat.get(8)
-        );
-
-        request.setA9(
-                respuestasQChat.get(9)
-        );
-
-        request.setA10(
-                respuestasQChat.get(10)
-        );
-
-        request.setEdad(
-                calcularEdad(nino)
-        );
-
-        request.setSexo(
-                convertirSexo(nino.getSexo())
-        );
-
+        request.setEdad(calcularEdad(nino));
+        request.setSexo(convertirSexo(nino.getSexo()));
         request.setJaundice(
                 convertirBooleano(
                         nino.getIctericia(),
                         "ictericia"
                 )
         );
-
         request.setFamilia_asd(
                 convertirBooleano(
                         nino.getFamiliarConTea(),
                         "antecedente familiar de TEA"
                 )
         );
-
-        request.setEtnia(
-                validarEtnia(nino.getEtnia())
-        );
-
-        request.setQuien_completo(
-                determinarQuienCompleto(usuario)
-        );
+        request.setEtnia(validarEtnia(nino.getEtnia()));
+        request.setQuien_completo(determinarQuienCompleto(usuario));
 
         return request;
     }
@@ -223,151 +162,112 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             List<Respuesta> respuestas
     ) {
 
-        Map<Integer, Integer> valores =
-                new HashMap<>();
+        Map<Integer, Integer> valores = new HashMap<>();
 
         for (Respuesta respuesta : respuestas) {
 
-            if (respuesta == null) {
+            if (respuesta == null || respuesta.getItemId() == null) {
                 continue;
             }
 
-            Integer itemId =
-                    respuesta.getItemId();
-
-            if (itemId == null) {
-                continue;
-            }
+            Integer itemId = respuesta.getItemId();
 
             if (itemId < 1 || itemId > 10) {
                 continue;
             }
 
-            Integer valor =
-                    obtenerValorRespuesta(
-                            respuesta.getValor()
-                    );
+            Integer valor = obtenerValorRespuesta(
+                    respuesta.getValor()
+            );
 
             if (valores.containsKey(itemId)) {
-                throw new RuntimeException(
+                throw new ConflictException(
                         "Existe más de una respuesta para el ítem Q-CHAT A"
                                 + itemId
                 );
             }
 
-            valores.put(
-                    itemId,
-                    valor
-            );
+            valores.put(itemId, valor);
         }
 
         return valores;
     }
 
-    private Integer obtenerValorRespuesta(
-            JsonNode valor
-    ) {
+    private Integer obtenerValorRespuesta(JsonNode valor) {
 
-        if (valor == null ||
-                valor.isNull()) {
-
-            throw new RuntimeException(
+        if (valor == null || valor.isNull()) {
+            throw new BadRequestException(
                     "Una respuesta Q-CHAT no tiene valor"
             );
         }
 
-        /*
-         * Valor numérico:
-         *
-         * 0
-         * 1
-         */
-        if (valor.isInt() ||
-                valor.isLong()) {
-
+        if (valor.isIntegralNumber()) {
             return validarValorQChat(
-                    valor.asInt()
+                    valor.intValue()
             );
         }
 
-        /*
-         * Valor textual:
-         *
-         * "0"
-         * "1"
-         */
         if (valor.isTextual()) {
-
-            String texto =
-                    valor.asText().trim();
-
-            if ("0".equals(texto)) {
-                return 0;
-            }
-
-            if ("1".equals(texto)) {
-                return 1;
-            }
+            return convertirValorTexto(
+                    valor.asText()
+            );
         }
 
-        /*
-         * Objeto:
-         *
-         * {
-         *     "value": 0
-         * }
-         */
-        if (valor.isObject() &&
-                valor.has("value")) {
+        if (valor.isObject() && valor.has("value")) {
 
-            JsonNode value =
-                    valor.get("value");
+            JsonNode value = valor.get("value");
 
-            if (value == null ||
-                    value.isNull()) {
-
-                throw new RuntimeException(
+            if (value == null || value.isNull()) {
+                throw new BadRequestException(
                         "El campo 'value' de la respuesta Q-CHAT no puede ser nulo"
                 );
             }
 
-            if (value.isInt() ||
-                    value.isLong()) {
-
+            if (value.isIntegralNumber()) {
                 return validarValorQChat(
-                        value.asInt()
+                        value.intValue()
                 );
             }
 
             if (value.isTextual()) {
-
-                String texto =
-                        value.asText().trim();
-
-                if ("0".equals(texto)) {
-                    return 0;
-                }
-
-                if ("1".equals(texto)) {
-                    return 1;
-                }
+                return convertirValorTexto(
+                        value.asText()
+                );
             }
         }
 
-        throw new RuntimeException(
-                "Valor de respuesta Q-CHAT no válido: "
-                        + valor
+        throw new BadRequestException(
+                "Valor de respuesta Q-CHAT no válido: " + valor
         );
     }
 
-    private Integer validarValorQChat(
-            Integer valor
-    ) {
+    private Integer convertirValorTexto(String valor) {
 
-        if (valor == null ||
-                (valor != 0 && valor != 1)) {
+        if (valor == null || valor.isBlank()) {
+            throw new BadRequestException(
+                    "El valor textual de una respuesta Q-CHAT no puede estar vacío"
+            );
+        }
 
-            throw new RuntimeException(
+        String texto = valor.trim();
+
+        if ("0".equals(texto)) {
+            return 0;
+        }
+
+        if ("1".equals(texto)) {
+            return 1;
+        }
+
+        throw new BadRequestException(
+                "El valor de una respuesta Q-CHAT debe ser 0 o 1"
+        );
+    }
+
+    private Integer validarValorQChat(Integer valor) {
+
+        if (valor == null || (valor != 0 && valor != 1)) {
+            throw new BadRequestException(
                     "El valor de una respuesta Q-CHAT debe ser 0 o 1"
             );
         }
@@ -379,8 +279,8 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             Map<Integer, Integer> respuestas
     ) {
 
-        if (respuestas == null) {
-            throw new RuntimeException(
+        if (respuestas == null || respuestas.isEmpty()) {
+            throw new BadRequestException(
                     "No se encontraron respuestas Q-CHAT"
             );
         }
@@ -388,91 +288,60 @@ public class PrediccionMLIMPL implements PrediccionMLService {
         for (int itemId = 1; itemId <= 10; itemId++) {
 
             if (!respuestas.containsKey(itemId)) {
-
-                throw new RuntimeException(
-                        "Falta la respuesta Q-CHAT A"
-                                + itemId
+                throw new BadRequestException(
+                        "Falta la respuesta Q-CHAT A" + itemId
                 );
             }
 
-            Integer valor =
-                    respuestas.get(itemId);
-
-            validarValorQChat(valor);
+            validarValorQChat(
+                    respuestas.get(itemId)
+            );
         }
 
         if (respuestas.size() != 10) {
-
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La evaluación Q-CHAT debe contener exactamente 10 respuestas"
             );
         }
     }
 
-    private Integer calcularEdad(
-            Nino nino
-    ) {
+    private Integer calcularEdad(Nino nino) {
 
         if (nino.getFechaNacimiento() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "El niño no tiene fecha de nacimiento"
             );
         }
 
-        LocalDate fechaNacimiento =
-                nino.getFechaNacimiento();
-
-        LocalDate hoy =
-                LocalDate.now();
+        LocalDate fechaNacimiento = nino.getFechaNacimiento();
+        LocalDate hoy = LocalDate.now();
 
         if (fechaNacimiento.isAfter(hoy)) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La fecha de nacimiento no puede ser posterior a la fecha actual"
             );
         }
 
-        int edad =
-                Period.between(
-                        fechaNacimiento,
-                        hoy
-                ).getYears();
-
-        if (edad < 0) {
-            throw new RuntimeException(
-                    "La edad calculada no puede ser negativa"
-            );
-        }
-
-        return edad;
+        return Period.between(
+                fechaNacimiento,
+                hoy
+        ).getYears();
     }
 
-    private Integer convertirSexo(
-            String sexo
-    ) {
+    private Integer convertirSexo(String sexo) {
 
-        if (sexo == null ||
-                sexo.isBlank()) {
-
-            throw new RuntimeException(
+        if (sexo == null || sexo.isBlank()) {
+            throw new BadRequestException(
                     "El sexo del niño es obligatorio"
             );
         }
 
-        return switch (
-                sexo.trim().toUpperCase()
-                ) {
-
-            case "F", "FEMENINO" ->
-                    0;
-
-            case "M", "MASCULINO" ->
-                    1;
-
-            default ->
-                    throw new RuntimeException(
-                            "Sexo no válido para el modelo de IA: "
-                                    + sexo
-                    );
+        return switch (sexo.trim().toUpperCase()) {
+            case "F", "FEMENINO" -> 0;
+            case "M", "MASCULINO" -> 1;
+            default -> throw new BadRequestException(
+                    "Sexo no válido para el modelo de IA: " + sexo
+            );
         };
     }
 
@@ -482,138 +351,83 @@ public class PrediccionMLIMPL implements PrediccionMLService {
     ) {
 
         if (valor == null) {
-            throw new RuntimeException(
-                    "El campo "
-                            + campo
-                            + " es obligatorio"
+            throw new BadRequestException(
+                    "El campo " + campo + " es obligatorio"
             );
         }
 
-        return Boolean.TRUE.equals(valor)
-                ? 1
-                : 0;
+        return Boolean.TRUE.equals(valor) ? 1 : 0;
     }
 
-    private String validarEtnia(
-            String etnia
-    ) {
+    private String validarEtnia(String etnia) {
 
-        if (etnia == null ||
-                etnia.isBlank()) {
-
-            throw new RuntimeException(
+        if (etnia == null || etnia.isBlank()) {
+            throw new BadRequestException(
                     "La etnia del niño es obligatoria para generar la predicción"
             );
         }
 
-        return switch (
-                etnia.trim().toLowerCase()
-                ) {
-
-            case "middle eastern" ->
-                    "Middle Eastern";
-
-            case "white european" ->
-                    "White European";
-
-            case "white-european" ->
-                    "White-European";
-
-            case "hispanic" ->
-                    "Hispanic";
-
-            case "black" ->
-                    "Black";
-
-            case "asian" ->
-                    "Asian";
-
-            case "south asian" ->
-                    "South Asian";
-
-            case "native indian" ->
-                    "Native Indian";
-
-            case "others", "other" ->
-                    "Others";
-
-            case "latino" ->
-                    "Latino";
-
-            case "mixed" ->
-                    "Mixed";
-
-            case "pacifica" ->
-                    "Pacifica";
-
-            case "turkish" ->
-                    "Turkish";
-
-            case "?" ->
-                    "?";
-
-            default ->
-                    throw new RuntimeException(
-                            "Etnia no válida para el modelo de IA: "
-                                    + etnia
-                    );
+        return switch (etnia.trim().toLowerCase()) {
+            case "middle eastern" -> "Middle Eastern";
+            case "white european" -> "White European";
+            case "white-european" -> "White-European";
+            case "hispanic" -> "Hispanic";
+            case "black" -> "Black";
+            case "asian" -> "Asian";
+            case "south asian" -> "South Asian";
+            case "native indian" -> "Native Indian";
+            case "others", "other" -> "Others";
+            case "latino" -> "Latino";
+            case "mixed" -> "Mixed";
+            case "pacifica" -> "Pacifica";
+            case "turkish" -> "Turkish";
+            case "?" -> "?";
+            default -> throw new BadRequestException(
+                    "Etnia no válida para el modelo de IA: " + etnia
+            );
         };
     }
 
-    private String determinarQuienCompleto(
-            Usuario usuario
-    ) {
+    private String determinarQuienCompleto(Usuario usuario) {
 
         if (usuario.getRol() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "El usuario no tiene un rol asignado"
             );
         }
 
         if (usuario.getRol().getNombre() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "El usuario tiene un rol sin nombre"
             );
         }
 
-        return switch (
-                usuario.getRol().getNombre()
-                ) {
-
-            case PADRE ->
-                    "Family Member";
-
-            case DOCENTE ->
-                    "Teacher";
-
-            case ADMIN ->
-                    "Administrator";
-
-            default ->
-                    throw new RuntimeException(
-                            "El rol del usuario no es válido para el modelo de IA"
-                    );
+        return switch (usuario.getRol().getNombre()) {
+            case PADRE -> "Family Member";
+            case DOCENTE -> "Health Care Professional";
+            case ADMIN -> "Administrator";
+            default -> throw new BadRequestException(
+                    "El rol del usuario no es válido para el modelo de IA"
+            );
         };
     }
 
-    private void validarRespuestaIA(
-            QChatMLResponse response
-    ) {
+    private void validarRespuestaIA(QChatMLResponse response) {
 
         if (response == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "El servicio de inteligencia artificial no devolvió una respuesta"
             );
         }
 
         if (response.getRandom_forest() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La IA no devolvió la predicción de Random Forest"
             );
         }
 
         if (response.getXgboost() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La IA no devolvió la predicción de XGBoost"
             );
         }
@@ -635,26 +449,26 @@ public class PrediccionMLIMPL implements PrediccionMLService {
     ) {
 
         if (response.getPrediction() == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La IA no devolvió la predicción de "
                             + nombreModelo
             );
         }
 
-        if (response.getPrediction() != 0 &&
-                response.getPrediction() != 1) {
+        if (response.getPrediction() != 0
+                && response.getPrediction() != 1) {
 
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La predicción de "
                             + nombreModelo
                             + " debe ser 0 o 1"
             );
         }
 
-        if (response.getResultado() == null ||
-                response.getResultado().isBlank()) {
+        if (response.getResultado() == null
+                || response.getResultado().isBlank()) {
 
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La IA no devolvió el resultado de "
                             + nombreModelo
             );
@@ -670,8 +484,7 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             QChatMLResponse response
     ) {
 
-        LocalDateTime ahora =
-                LocalDateTime.now();
+        LocalDateTime ahora = LocalDateTime.now();
 
         guardarPrediccion(
                 evaluacion,
@@ -696,9 +509,8 @@ public class PrediccionMLIMPL implements PrediccionMLService {
     ) {
 
         if (modeloResponse == null) {
-            throw new RuntimeException(
-                    "La IA no devolvió la predicción para "
-                            + modelo
+            throw new BadRequestException(
+                    "La IA no devolvió la predicción para " + modelo
             );
         }
 
@@ -713,33 +525,15 @@ public class PrediccionMLIMPL implements PrediccionMLService {
                                 evaluacion.getIdEvaluacion(),
                                 modelo
                         )
-                        .orElseGet(
-                                PrediccionML::new
-                        );
+                        .orElseGet(PrediccionML::new);
 
-        prediccion.setEvaluacion(
-                evaluacion
-        );
+        prediccion.setEvaluacion(evaluacion);
+        prediccion.setModelo(modelo);
+        prediccion.setResultado(modeloResponse.getResultado());
+        prediccion.setProbabilidad(probabilidad);
+        prediccion.setFechaPrediccion(fechaPrediccion);
 
-        prediccion.setModelo(
-                modelo
-        );
-
-        prediccion.setResultado(
-                modeloResponse.getResultado()
-        );
-
-        prediccion.setProbabilidad(
-                probabilidad
-        );
-
-        prediccion.setFechaPrediccion(
-                fechaPrediccion
-        );
-
-        prediccionMLRepos.save(
-                prediccion
-        );
+        prediccionMLRepos.save(prediccion);
     }
 
     private BigDecimal validarProbabilidad(
@@ -747,19 +541,15 @@ public class PrediccionMLIMPL implements PrediccionMLService {
     ) {
 
         if (probabilidad == null) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La IA no devolvió la probabilidad"
             );
         }
 
-        if (probabilidad.compareTo(
-                BigDecimal.ZERO
-        ) < 0 ||
-                probabilidad.compareTo(
-                        BigDecimal.ONE
-                ) > 0) {
+        if (probabilidad.compareTo(BigDecimal.ZERO) < 0
+                || probabilidad.compareTo(BigDecimal.ONE) > 0) {
 
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La probabilidad devuelta por la IA no es válida"
             );
         }
@@ -773,26 +563,22 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             Long idPrediccion
     ) {
 
-        if (idPrediccion == null ||
-                idPrediccion <= 0) {
-
-            throw new RuntimeException(
-                    "El ID de la predicción es obligatorio y debe ser mayor que cero"
-            );
-        }
+        validarId(
+                idPrediccion,
+                "El ID de la predicción es obligatorio y debe ser mayor que cero"
+        );
 
         PrediccionML prediccion =
                 prediccionMLRepos
                         .findById(idPrediccion)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Predicción ML no encontrada"
+                                new ResourceNotFoundException(
+                                        "No se encontró la predicción ML con ID: "
+                                                + idPrediccion
                                 )
                         );
 
-        return prediccionMLMapper.toResponse(
-                prediccion
-        );
+        return prediccionMLMapper.toResponse(prediccion);
     }
 
     @Override
@@ -801,18 +587,13 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             Long idEvaluacion
     ) {
 
-        if (idEvaluacion == null ||
-                idEvaluacion <= 0) {
-
-            throw new RuntimeException(
-                    "El ID de la evaluación es obligatorio y debe ser mayor que cero"
-            );
-        }
+        validarId(
+                idEvaluacion,
+                "El ID de la evaluación es obligatorio y debe ser mayor que cero"
+        );
 
         return prediccionMLRepos
-                .findByEvaluacion_IdEvaluacion(
-                        idEvaluacion
-                )
+                .findByEvaluacion_IdEvaluacion(idEvaluacion)
                 .stream()
                 .map(prediccionMLMapper::toResponse)
                 .toList();
@@ -829,38 +610,33 @@ public class PrediccionMLIMPL implements PrediccionMLService {
             Pageable pageable
     ) {
 
-        if (idEvaluacion != null &&
-                idEvaluacion <= 0) {
-
-            throw new RuntimeException(
+        if (idEvaluacion != null && idEvaluacion <= 0) {
+            throw new BadRequestException(
                     "El ID de la evaluación debe ser mayor que cero"
             );
         }
 
-        if (fechaDesde != null &&
-                fechaHasta != null &&
-                fechaDesde.isAfter(fechaHasta)) {
+        if (fechaDesde != null
+                && fechaHasta != null
+                && fechaDesde.isAfter(fechaHasta)) {
 
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "La fecha desde no puede ser posterior a la fecha hasta"
             );
         }
 
-        if (resultado != null &&
-                resultado.isBlank()) {
-
+        if (resultado != null && resultado.isBlank()) {
             resultado = null;
         }
 
-        Pageable pageableOrdenado =
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        Sort.by(
-                                Sort.Direction.DESC,
-                                "idPrediccion"
-                        )
-                );
+        Pageable pageableOrdenado = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(
+                        Sort.Direction.DESC,
+                        "idPrediccion"
+                )
+        );
 
         Specification<PrediccionML> specification =
                 PrediccionMLSpecification.conFiltros(
@@ -877,5 +653,15 @@ public class PrediccionMLIMPL implements PrediccionMLService {
                         pageableOrdenado
                 )
                 .map(prediccionMLMapper::toResponse);
+    }
+
+    private void validarId(
+            Long id,
+            String mensaje
+    ) {
+
+        if (id == null || id <= 0) {
+            throw new BadRequestException(mensaje);
+        }
     }
 }

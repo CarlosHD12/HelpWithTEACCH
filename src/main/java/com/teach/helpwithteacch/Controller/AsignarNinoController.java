@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class AsignarNinoController {
     private final AsignarNinoService asignarNinoService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<Void> asignar(
             @Valid @RequestBody AsignarNinoRequest request
     ) {
@@ -64,14 +65,15 @@ public class AsignarNinoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<Page<AsignarNinoResponse>> listar(
             @RequestParam(required = false) Long idUsuario,
             @RequestParam(required = false) Long idNino,
             @RequestParam(required = false) Estado estado,
             @RequestParam(required = false) LocalDateTime fechaDesde,
             @RequestParam(required = false) LocalDateTime fechaHasta,
-            Pageable pageable
+            Pageable pageable,
+            Authentication authentication
     ) {
         return ResponseEntity.ok(
                 asignarNinoService.listar(
@@ -80,7 +82,8 @@ public class AsignarNinoController {
                         estado,
                         fechaDesde,
                         fechaHasta,
-                        pageable
+                        pageable,
+                        authentication
                 )
         );
     }
