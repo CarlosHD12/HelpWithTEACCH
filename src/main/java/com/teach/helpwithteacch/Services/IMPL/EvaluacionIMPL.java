@@ -198,25 +198,28 @@ public class EvaluacionIMPL implements EvaluacionService {
         );
     }
 
-    @Override
-    public EvaluacionResponse reanudar(Long idEvaluacion) {
-        Evaluacion evaluacion = buscarEvaluacion(idEvaluacion);
+    
 
-        if (evaluacion.getEstado() != EstadoEvaluacion.PAUSADA) {
-            throw new BadRequestException(
-                    "La evaluación con ID " + idEvaluacion + " no se encuentra pausada"
-            );
-        }
+@Override
+public EvaluacionResponse reanudar(Long idEvaluacion) {
+    Evaluacion evaluacion = buscarEvaluacion(idEvaluacion);
 
-        validarNinoActivo(evaluacion.getNino());
-        validarUsuarioActivo(evaluacion.getUsuario());
-        validarVersionActiva(evaluacion.getVersion());
-
-        evaluacion.setEstado(EstadoEvaluacion.EN_PROGRESO);
-        evaluacion.setFechaUltimoAcceso(LocalDateTime.now());
-
-        return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+    if (evaluacion.getEstado() != EstadoEvaluacion.PAUSADA) {
+        throw new BadRequestException(
+                "La evaluación con ID " + idEvaluacion + " no se encuentra pausada"
+        );
     }
+
+    validarNinoActivo(evaluacion.getNino());
+    validarUsuarioActivo(evaluacion.getUsuario());
+    validarVersionActiva(evaluacion.getVersion());
+
+    evaluacion.setEstado(EstadoEvaluacion.EN_PROGRESO);
+    evaluacion.setFechaUltimoAcceso(LocalDateTime.now());
+
+    return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+}
+
 
     @Override
     public EvaluacionResponse cancelar(Long idEvaluacion) {
