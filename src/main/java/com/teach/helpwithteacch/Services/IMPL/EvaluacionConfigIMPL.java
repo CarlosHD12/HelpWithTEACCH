@@ -1,6 +1,7 @@
 package com.teach.helpwithteacch.Services.IMPL;
 
 import com.teach.helpwithteacch.DTO.EvaluacionConfig.*;
+import com.teach.helpwithteacch.Security.Exceptions.ResourceNotFoundException;
 import com.teach.helpwithteacch.Services.EvaluacionConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
@@ -22,17 +23,21 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
     ) {
         String carpeta = tipoPrueba.toLowerCase();
 
+        // "1", "1.0" y " 1.0 " se tratan como la misma versión.
+        String version = normalizarVersion(numeroVersion);
+
         String ruta = String.format(
                 "evaluaciones/%s/prototype-%s.json",
                 carpeta,
-                numeroVersion
+                version
         );
 
         ClassPathResource resource = new ClassPathResource(ruta);
 
         if (!resource.exists()) {
-            throw new IllegalArgumentException(
+            throw new ResourceNotFoundException(
                     "No existe la configuración de la evaluación: " + ruta
+                            + " (versión registrada: '" + numeroVersion + "')"
             );
         }
 
@@ -58,8 +63,8 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
             }
 
             if (configuracion.getAssessment().getVersion() == null
-                    || !configuracion.getAssessment().getVersion()
-                    .equals(numeroVersion)) {
+                    || !normalizarVersion(configuracion.getAssessment().getVersion())
+                    .equals(version)) {
                 throw new IllegalStateException(
                         "La versión del JSON no coincide con la versión registrada: " + ruta
                 );
@@ -73,5 +78,28 @@ public class EvaluacionConfigIMPL implements EvaluacionConfigService {
                     e
             );
         }
+    }
+
+    /**
+     * Normaliza el número de versión para que coincida con el nombre del archivo:
+     * "1" → "1.0", " 2 " → "2.0", "1.0" → "1.0", "v1.0" → "1.0".
+     */
+    private String normalizarVersion(String numeroVersion) {
+
+        if (numeroVersion == null) {
+            return "";
+        }
+
+        String version = numeroVersion.trim();
+
+        if (version.toLowerCase().startsWith("v")) {
+            version = version.substring(1).trim();
+        }
+
+        if (version.matches("\\d+")) {
+            version = version + ".0";
+        }
+
+        return version;
     }
 }
