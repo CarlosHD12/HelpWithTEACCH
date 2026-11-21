@@ -21,4 +21,5 @@ public class EvaluacionResponse extends AuditoriaResponse {
     private LocalDateTime fechaUltimoAcceso;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFinalizacion;
+    private Integer tiempoActivoSegundos;
 }

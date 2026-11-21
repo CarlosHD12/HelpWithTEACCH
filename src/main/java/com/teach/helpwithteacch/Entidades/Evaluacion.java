@@ -68,4 +68,11 @@ public class Evaluacion extends Auditoria {
 
     @Column(name = "fecha_finalizacion")
     private LocalDateTime fechaFinalizacion;
+
+    /**
+     * Tiempo activo (en segundos) que el niño estuvo respondiendo.
+     * Lo envía el cronómetro del frontend; null en evaluaciones antiguas.
+     */
+    @Column(name = "tiempo_activo_segundos")
+    private Integer tiempoActivoSegundos;
 }
