@@ -268,6 +268,56 @@ public EvaluacionResponse finalizar(Long idEvaluacion) {
     );
 }
 
+    /**
+     * Guarda el tiempo activo que envía el cronómetro del frontend.
+     * Solo puede aumentar: se guarda el mayor entre el actual y el nuevo.
+     * Una evaluación COMPLETADA acepta el último registro durante
+     * 10 minutos después de su último acceso.
+     */
+    @Override
+    public EvaluacionResponse registrarTiempo(
+            Long idEvaluacion,
+            TiempoEvaluacionRequest request
+    ) {
+        Evaluacion evaluacion = buscarEvaluacion(idEvaluacion);
+
+        EstadoEvaluacion estado = evaluacion.getEstado();
+        LocalDateTime ahora = LocalDateTime.now();
+
+        boolean completadaReciente =
+                estado == EstadoEvaluacion.COMPLETADA
+                        && evaluacion.getFechaUltimoAcceso() != null
+                        && evaluacion.getFechaUltimoAcceso()
+                        .isAfter(ahora.minusMinutes(10));
+
+        if (estado != EstadoEvaluacion.EN_PROGRESO
+                && estado != EstadoEvaluacion.PAUSADA
+                && !completadaReciente) {
+            throw new BadRequestException(
+                    "No se puede registrar tiempo en la evaluación con ID "
+                            + idEvaluacion + " (estado " + estado + ")"
+            );
+        }
+
+        int actual = evaluacion.getTiempoActivoSegundos() == null
+                ? 0
+                : evaluacion.getTiempoActivoSegundos();
+
+        int nuevo = request.getSegundos();
+
+        if (nuevo > actual) {
+            evaluacion.setTiempoActivoSegundos(nuevo);
+        } else if (evaluacion.getTiempoActivoSegundos() == null) {
+            evaluacion.setTiempoActivoSegundos(actual);
+        }
+
+        if (estado != EstadoEvaluacion.COMPLETADA) {
+            evaluacion.setFechaUltimoAcceso(ahora);
+        }
+
+        return evaluacionMapper.toResponse(evaluacionRepos.save(evaluacion));
+    }
+
     private boolean esUltimaPregunta(Evaluacion evaluacion, Integer itemActual, Integer serieActual) {
         if (itemActual == null || serieActual == null) {
             return false;

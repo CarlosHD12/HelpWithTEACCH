@@ -26,4 +26,6 @@ public interface EvaluacionService {
     EvaluacionResponse reanudar(Long idEvaluacion);
     EvaluacionResponse cancelar(Long idEvaluacion);
     EvaluacionResponse finalizar(Long idEvaluacion);
+
+    EvaluacionResponse registrarTiempo(Long idEvaluacion, TiempoEvaluacionRequest request);
 }

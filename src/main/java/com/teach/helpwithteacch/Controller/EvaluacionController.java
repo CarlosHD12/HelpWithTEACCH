@@ -45,6 +45,17 @@ public class EvaluacionController {
         );
     }
 
+    @PatchMapping("/{idEvaluacion}/tiempo")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
+    public ResponseEntity<EvaluacionResponse> registrarTiempo(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody TiempoEvaluacionRequest request
+    ) {
+        return ResponseEntity.ok(
+                evaluacionService.registrarTiempo(idEvaluacion, request)
+        );
+    }
+
     @PatchMapping("/{idEvaluacion}/pausar")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCENTE', 'PADRE')")
     public ResponseEntity<EvaluacionResponse> pausar(

@@ -19,6 +19,7 @@ public interface EvaluacionMapper {
     @Mapping(target = "fechaUltimoAcceso", ignore = true)
     @Mapping(target = "fechaInicio", ignore = true)
     @Mapping(target = "fechaFinalizacion", ignore = true)
+    @Mapping(target = "tiempoActivoSegundos", ignore = true)
     Evaluacion toEntity(EvaluacionRequest request);
     @Mapping(target = "idEvaluacion", ignore = true)
     @Mapping(target = "nino", ignore = true)
@@ -32,6 +33,7 @@ public interface EvaluacionMapper {
     @Mapping(target = "fechaUltimoAcceso", ignore = true)
     @Mapping(target = "fechaInicio", ignore = true)
     @Mapping(target = "fechaFinalizacion", ignore = true)
+    @Mapping(target = "tiempoActivoSegundos", ignore = true)
     void updateEntity(EvaluacionEditRequest request, @MappingTarget Evaluacion evaluacion);
     @Mapping(target = "idNino", source = "nino.idNino")
     @Mapping(target = "idUsuario", source = "usuario.idUsuario")
